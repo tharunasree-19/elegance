@@ -96,8 +96,6 @@ def get_user_by_email(email):
         logger.error(f"Error fetching user by email: {e}")
         return None
 
-import uuid  # Put at the top of your file if not already imported
-
 def create_user(name, email, phone, password):
     try:
         table = get_users_table()
@@ -115,6 +113,7 @@ def create_user(name, email, phone, password):
         return True
     except Exception as e:
         print("❌ Error creating user:", repr(e))
+        import traceback
         traceback.print_exc()
         return False
 
@@ -139,7 +138,6 @@ def login():
             error = "Invalid email or password"
 
     return render_template('login.html', error=error)
-
 
 
 @auth_bp.route('/signup', methods=['GET', 'POST'])
@@ -273,6 +271,7 @@ def appointments():
 def cancel_appointment(appointment_id):
     #... (cancel appointment logic)
     pass
+
 @booking_bp.route('/reschedule/<string:appointment_id>', methods = ['GET','POST'])
 def reschedule_appointment(appointment_id):
     #... (reschedule appointment logic)
@@ -286,6 +285,13 @@ def index():
 @app.route('/home')
 def home():
     return render_template('home.html', user_name=session.get('user_name')) if 'user_id' in session else redirect(url_for('auth.login'))
+
+# NEW ROUTE: Redirect from /appointments to /booking/appointments
+@app.route('/appointments')
+def view_appointments():
+    if 'user_id' not in session:
+        return redirect(url_for('auth.login'))
+    return redirect(url_for('booking.appointments'))
 
 # Register Blueprints
 app.register_blueprint(auth_bp)
