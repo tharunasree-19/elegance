@@ -251,32 +251,29 @@ def booking():
         min_date=datetime.date.today().strftime('%Y-%m-%d')
     )
 
-@booking_bp.route('/appointments')
-def appointments():
+@app.route('/appointments')
+def appointments_redirect():
     if 'user_id' not in session:
         return redirect(url_for('auth.login'))
-
+    
+    # Instead of redirecting, call the booking.appointments function directly
     try:
-        # Instead of scanning for user_id, scan using 'user_email' or similar field
+        # Get appointments data (same code as in booking.appointments)
         response = get_appointments_table().scan(FilterExpression=Key('user_email').eq(session['user_email']))
         appointments = response['Items']
 
         stylists_map = {stylist['id']: stylist['name'] for stylist in get_stylists()}
         
-        # Process appointments data - format dates and times for display
+        # Process appointments data
         for appt in appointments:
             appt['stylist_name'] = stylists_map.get(appt['stylist_id'], "Unknown")
-            # Format date for display - original was trying to use strftime on string values
             try:
-                # Convert date string to Python date object for template use (optional)
                 date_obj = datetime.datetime.strptime(appt['appointment_date'], '%Y-%m-%d').date()
                 appt['formatted_date'] = date_obj.strftime('%a, %b %d, %Y')
                 
-                # Convert time string to Python time object for template use
                 time_obj = datetime.datetime.strptime(appt['appointment_time'], '%H:%M').time()
                 appt['formatted_time'] = time_obj.strftime('%I:%M %p')
             except (ValueError, KeyError) as e:
-                # Handle any parsing errors safely
                 appt['formatted_date'] = appt.get('appointment_date', 'Unknown date')
                 appt['formatted_time'] = appt.get('appointment_time', 'Unknown time')
 
@@ -285,7 +282,6 @@ def appointments():
         logger.error(f"Error fetching appointments: {e}")
         flash(f"Error retrieving appointments: {str(e)}", "error")
         return redirect(url_for('home'))
-
 
 @booking_bp.route('/cancel/<string:appointment_id>')
 def cancel_appointment(appointment_id):
