@@ -12,10 +12,10 @@
         <nav>
             <div class="logo">Elegance<span>Salon</span></div>
             <ul class="nav-links">
-                <li><a href="/home"><i class="fas fa-home"></i> Home</a></li>
-                <li><a href="/booking"><i class="fas fa-calendar-plus"></i> Book Now</a></li>
-                <li><a href="/appointments" class="active"><i class="fas fa-calendar-check"></i> My Appointments</a></li>
-                <li><a href="/logout" class="logout-link"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+                <li><a href="{{ url_for('home') }}"><i class="fas fa-home"></i> Home</a></li>
+                <li><a href="{{ url_for('booking.booking') }}"><i class="fas fa-calendar-plus"></i> Book Now</a></li>
+                <li><a href="{{ url_for('booking.appointments') }}" class="active"><i class="fas fa-calendar-check"></i> My Appointments</a></li>
+                <li><a href="{{ url_for('auth.logout') }}" class="logout-link"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
             </ul>
             <div class="hamburger-menu">
                 <div class="bar"></div>
@@ -47,13 +47,12 @@
                     <div class="summary-details">
                         <p><strong>Service:</strong> {{ appointment.service }}</p>
                         <p><strong>Stylist:</strong> {{ stylist_name }}</p>
-                        <p><strong>Current Date:</strong> {{ appointment.appointment_date.strftime('%a, %b %d, %Y') }}</p>
-                        <p><strong>Current Time:</strong> {{ appointment.appointment_time.strftime('%I:%M %p') }}</p>
+                        <p><strong>Current Date:</strong> {{ appointment.appointment_date }}</p>
+                        <p><strong>Current Time:</strong> {{ appointment.appointment_time }}</p>
                     </div>
                 </div>
 
                 <!-- Fixed form action to match Flask route -->
-               <!-- Update the form action to match the Flask route -->
                 <form method="POST" action="{{ url_for('booking.reschedule_appointment', appointment_id=appointment.appointment_id) }}">
                     <div class="form-group">
                         <label for="appointment_date">New Date:</label>
@@ -76,7 +75,7 @@
                             <option value="18:00" {% if current_time == '18:00' %}selected{% endif %}>6:00 PM</option>
                         </select>
                     </div>
-                
+
                     <div class="action-buttons">
                         <a href="{{ url_for('booking.appointments') }}" class="btn-cancel">Cancel</a>
                         <button type="submit" class="btn">Reschedule Appointment</button>
