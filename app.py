@@ -290,6 +290,7 @@ def appointments():
         flash(f"An error occurred: {error_msg}", "error")
         # Redirect to home instead of trying to render an error template
         return redirect(url_for('home'))
+
 @booking_bp.route('/cancel/<string:appointment_id>')
 def cancel_appointment(appointment_id):
     if 'user_id' not in session:
@@ -417,15 +418,12 @@ def reschedule_appointment(appointment_id):
                 error = f"Error rescheduling appointment: {e}"
         
         # For GET request or if there was an error, display the form
-        appointment_date = datetime.datetime.strptime(appointment.get('appointment_date', ''), '%Y-%m-%d').date() if appointment.get('appointment_date') else None
-        appointment_time = appointment.get('appointment_time', '')
-        
         return render_template(
             'reschedule_appointment.html',
             appointment=appointment,
             stylist_name=stylist_name,
             current_date=appointment.get('appointment_date', ''),
-            current_time=appointment_time,
+            current_time=appointment.get('appointment_time', ''),
             min_date=datetime.date.today().strftime('%Y-%m-%d'),
             error=error
         )
@@ -444,15 +442,16 @@ def index():
 def home():
     return render_template('home.html', user_name=session.get('user_name')) if 'user_id' in session else redirect(url_for('auth.login'))
 
-# NEW ROUTE: Redirect from /appointments to /booking/appointments
+# FIXED ROUTE: Redirect from /appointments to /booking/appointments
 @app.route('/appointments')
 def view_appointments():
     if 'user_id' not in session:
         return redirect(url_for('auth.login'))
+    # Redirect to the appointments function in the booking blueprint
     return redirect(url_for('booking.appointments'))
 
 # Register Blueprints
-app.register_blueprint(auth_bp)
+app.register_blueprint(auth_bp, url_prefix='/auth')
 app.register_blueprint(booking_bp, url_prefix='/booking')
 
 if __name__ == '__main__':
