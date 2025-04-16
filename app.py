@@ -440,7 +440,7 @@ def booking_redirect():
     return redirect(url_for('booking.booking'))
 
 # Register Blueprints
-app.register_blueprint(auth_bp)
+app.register_blueprint(auth_bp, url_prefix='/auth')  # Add url_prefix for auth blueprint
 app.register_blueprint(booking_bp, url_prefix='/booking')
 
 if __name__ == '__main__':
