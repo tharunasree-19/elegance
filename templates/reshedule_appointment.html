@@ -53,7 +53,8 @@
                 </div>
 
                 <!-- Fixed form action to match Flask route -->
-                <form method="POST" action="/reschedule_appointment/{{ appointment.id }}">
+               <!-- Update the form action to match the Flask route -->
+                <form method="POST" action="{{ url_for('booking.reschedule_appointment', appointment_id=appointment.appointment_id) }}">
                     <div class="form-group">
                         <label for="appointment_date">New Date:</label>
                         <input type="date" id="appointment_date" name="appointment_date" value="{{ current_date }}" min="{{ min_date }}" required>
@@ -75,9 +76,9 @@
                             <option value="18:00" {% if current_time == '18:00' %}selected{% endif %}>6:00 PM</option>
                         </select>
                     </div>
-
+                
                     <div class="action-buttons">
-                        <a href="/appointments" class="btn-cancel">Cancel</a>
+                        <a href="{{ url_for('booking.appointments') }}" class="btn-cancel">Cancel</a>
                         <button type="submit" class="btn">Reschedule Appointment</button>
                     </div>
                 </form>
