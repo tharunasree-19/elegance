@@ -60,49 +60,50 @@
                         <button class="tab-btn" data-filter="completed">Completed</button>
                         <button class="tab-btn" data-filter="cancelled">Cancelled</button>
                     </div>
-                    <!-- Inside the appointment-card loop -->
-<div class="appointment-card status-{{ appointment.status }}">
-    <div class="appointment-status">
-        <!-- Optional status badge or indicator if you want -->
-    </div>
-    
-    <div class="appointment-details">
-        <div class="appointment-service">
-            <h3>{{ appointment.service }}</h3>
-            <p class="stylist-name">with {{ appointment.stylist_name }}</p>
-        </div>
-        
-        <div class="appointment-time">
-            <div class="date">
-                <i class="fas fa-calendar-alt"></i> 
-                {{ appointment.appointment_date.strftime('%a, %b %d, %Y') }}
-            </div>
-            <div class="time">
-                <i class="fas fa-clock"></i>
-                {{ appointment.appointment_time.strftime('%I:%M %p') }}
-            </div>
-        </div>
+                    
+                    <div class="appointment-cards">
+                        {% for appt in appointments %}
+                        <div class="appointment-card status-{{ appt.status }}">
+                            <div class="appointment-status">
+                                <!-- Optional status badge or indicator if you want -->
+                            </div>
+                            
+                            <div class="appointment-details">
+                                <div class="appointment-service">
+                                    <h3>{{ appt.service }}</h3>
+                                    <p class="stylist-name">with {{ appt.stylist_name }}</p>
+                                </div>
+                                
+                                <div class="appointment-time">
+                                    <div class="date">
+                                        <i class="fas fa-calendar-alt"></i> 
+                                        {{ appt.appointment_date }}
+                                    </div>
+                                    <div class="time">
+                                        <i class="fas fa-clock"></i>
+                                        {{ appt.appointment_time }}
+                                    </div>
+                                </div>
 
-        {% if appointment.notes %}
-        <div class="appointment-notes">
-            <p><i class="fas fa-comment-alt"></i> <strong>Notes:</strong> {{ appointment.notes }}</p>
-        </div>
-        {% endif %}
+                                {% if appt.notes %}
+                                <div class="appointment-notes">
+                                    <p><i class="fas fa-comment-alt"></i> <strong>Notes:</strong> {{ appt.notes }}</p>
+                                </div>
+                                {% endif %}
 
-        <!-- ✅ Moved action buttons here -->
-        {% if appointment.status == 'scheduled' %}
-        <div class="appointment-actions"><a href="{{ url_for('booking.cancel_appointment', appointment_id=appointment.id) }}"class="btn-cancel" 
-               onclick="return confirm('Are you sure you want to cancel this appointment?')">
-                <i class="fas fa-times"></i> Cancel Appointment
-            </a>
-            <a href="{{ url_for('booking.reschedule_appointment', appointment_id=appointment.id) }}" class="btn-reschedule">
-                <i class="fas fa-calendar-alt"></i> Reschedule
-            </a>
-        </div>
-        {% endif %}
-    </div>
-</div>
-
+                                <!-- Action buttons -->
+                                {% if appt.status == 'scheduled' %}
+                                <div class="appointment-actions">
+                                    <a href="{{ url_for('booking.cancel_appointment', appointment_id=appt.appointment_id) }}" class="btn-cancel" 
+                                       onclick="return confirm('Are you sure you want to cancel this appointment?')">
+                                        <i class="fas fa-times"></i> Cancel Appointment
+                                    </a>
+                                    <a href="{{ url_for('booking.reschedule_appointment', appointment_id=appt.appointment_id) }}" class="btn-reschedule">
+                                        <i class="fas fa-calendar-alt"></i> Reschedule
+                                    </a>
+                                </div>
+                                {% endif %}
+                            </div>
                         </div>
                         {% endfor %}
                     </div>
