@@ -292,13 +292,148 @@ def appointments():
         return redirect(url_for('home'))
 @booking_bp.route('/cancel/<string:appointment_id>')
 def cancel_appointment(appointment_id):
-    #... (cancel appointment logic)
-    pass
+    if 'user_id' not in session:
+        return redirect(url_for('auth.login'))
+    
+    try:
+        # Get the appointment to verify ownership
+        appointments_table = get_appointments_table()
+        response = appointments_table.get_item(Key={'appointment_id': appointment_id})
+        appointment = response.get('Item')
+        
+        # Verify the appointment exists and belongs to the user
+        if not appointment:
+            flash('Appointment not found', 'error')
+            return redirect(url_for('booking.appointments'))
+            
+        if appointment.get('user_id') != session['user_id']:
+            flash('You do not have permission to cancel this appointment', 'error')
+            return redirect(url_for('booking.appointments'))
+            
+        # Update the appointment status to "cancelled"
+        appointments_table.update_item(
+            Key={'appointment_id': appointment_id},
+            UpdateExpression='SET #status = :status, #updated_at = :updated_at',
+            ExpressionAttributeNames={
+                '#status': 'status',
+                '#updated_at': 'updated_at'
+            },
+            ExpressionAttributeValues={
+                ':status': 'cancelled',
+                ':updated_at': str(datetime.datetime.utcnow())
+            }
+        )
+        
+        # Send notification
+        message = f"Appointment cancelled for {session['user_name']} on {appointment.get('appointment_date')} at {appointment.get('appointment_time')}."
+        send_sns_notification(message)
+        
+        flash('Your appointment has been cancelled successfully!', 'success')
+    except Exception as e:
+        logger.error(f"Error cancelling appointment: {e}")
+        flash(f"An error occurred while cancelling your appointment: {str(e)}", 'error')
+    
+    return redirect(url_for('booking.appointments'))
 
-@booking_bp.route('/reschedule/<string:appointment_id>', methods = ['GET','POST'])
+@booking_bp.route('/reschedule/<string:appointment_id>', methods=['GET', 'POST'])
 def reschedule_appointment(appointment_id):
-    #... (reschedule appointment logic)
-    pass
+    if 'user_id' not in session:
+        return redirect(url_for('auth.login'))
+    
+    error = None
+    stylists = get_stylists()
+    
+    try:
+        # Get the appointment to verify ownership and display current details
+        appointments_table = get_appointments_table()
+        response = appointments_table.get_item(Key={'appointment_id': appointment_id})
+        appointment = response.get('Item')
+        
+        # Verify the appointment exists and belongs to the user
+        if not appointment:
+            flash('Appointment not found', 'error')
+            return redirect(url_for('booking.appointments'))
+            
+        if appointment.get('user_id') != session['user_id']:
+            flash('You do not have permission to reschedule this appointment', 'error')
+            return redirect(url_for('booking.appointments'))
+            
+        # Get the stylist information
+        stylist_id = appointment.get('stylist_id')
+        stylist_name = "Unknown"
+        for stylist in stylists:
+            if stylist.get('id') == stylist_id:
+                stylist_name = stylist.get('name')
+                break
+        
+        if request.method == 'POST':
+            # Get form data
+            new_date = request.form['appointment_date']
+            new_time = request.form['appointment_time']
+            
+            try:
+                # Validate the new date and time
+                new_date_obj = datetime.datetime.strptime(new_date, '%Y-%m-%d').date()
+                today = datetime.date.today()
+                
+                if new_date_obj < today:
+                    error = "Appointment date cannot be in the past"
+                else:
+                    # Check if the time slot is available for the stylist
+                    response = appointments_table.scan(
+                        FilterExpression=Key('stylist_id').eq(stylist_id) & 
+                                        Key('appointment_date').eq(new_date) & 
+                                        Key('appointment_time').eq(new_time) & 
+                                        Key('status').eq('scheduled')
+                    )
+                    
+                    if response.get('Items') and len(response['Items']) > 0:
+                        error = "This time slot is already booked"
+                    else:
+                        # Update the appointment
+                        appointments_table.update_item(
+                            Key={'appointment_id': appointment_id},
+                            UpdateExpression='SET appointment_date = :date, appointment_time = :time, #updated_at = :updated_at',
+                            ExpressionAttributeNames={
+                                '#updated_at': 'updated_at'
+                            },
+                            ExpressionAttributeValues={
+                                ':date': new_date,
+                                ':time': new_time,
+                                ':updated_at': str(datetime.datetime.utcnow())
+                            }
+                        )
+                        
+                        # Send notification
+                        message = f"Appointment rescheduled for {session['user_name']} with stylist {stylist_name} to {new_date} at {new_time}."
+                        send_sns_notification(message)
+                        
+                        flash('Your appointment has been rescheduled successfully!', 'success')
+                        return redirect(url_for('booking.appointments'))
+                        
+            except ValueError as e:
+                error = f"Invalid date or time format: {e}"
+            except Exception as e:
+                error = f"Error rescheduling appointment: {e}"
+        
+        # For GET request or if there was an error, display the form
+        appointment_date = datetime.datetime.strptime(appointment.get('appointment_date', ''), '%Y-%m-%d').date() if appointment.get('appointment_date') else None
+        appointment_time = appointment.get('appointment_time', '')
+        
+        return render_template(
+            'reschedule_appointment.html',
+            appointment=appointment,
+            stylist_name=stylist_name,
+            current_date=appointment.get('appointment_date', ''),
+            current_time=appointment_time,
+            min_date=datetime.date.today().strftime('%Y-%m-%d'),
+            error=error
+        )
+        
+    except Exception as e:
+        logger.error(f"Error in reschedule appointment route: {e}")
+        flash(f"An error occurred: {str(e)}", 'error')
+        return redirect(url_for('booking.appointments'))
 
 # Main Routes
 @app.route('/')
