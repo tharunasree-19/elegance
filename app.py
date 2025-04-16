@@ -255,16 +255,54 @@ def booking():
 def appointments():
     if 'user_id' not in session:
         return redirect(url_for('auth.login'))
-
-    # Instead of scanning for user_id, scan using 'user_email' or similar field
-    response = get_appointments_table().scan(FilterExpression=Key('user_email').eq(session['user_email']))
-    appointments = response['Items']
-
-    stylists_map = {stylist['id']: stylist['name'] for stylist in get_stylists()}
-    for appt in appointments:
-        appt['stylist_name'] = stylists_map.get(appt['stylist_id'], "Unknown")
-
-    return render_template('appointments.html', appointments=appointments)
+    
+    if 'user_email' not in session:
+        logger.error("User email not found in session")
+        flash("Session error: Please log in again", "error")
+        return redirect(url_for('auth.login'))
+    
+    try:
+        # Add debugging for the DynamoDB query
+        logger.info(f"Attempting to fetch appointments for user email: {session['user_email']}")
+        
+        # Query the appointments table
+        response = get_appointments_table().scan(
+            FilterExpression=Key('user_email').eq(session['user_email'])
+        )
+        
+        # Check if we got a valid response
+        if 'Items' not in response:
+            logger.error(f"Invalid response from DynamoDB: {response}")
+            return render_template('error.html', error="Database error: Could not retrieve appointments")
+        
+        appointments = response['Items']
+        logger.info(f"Found {len(appointments)} appointments")
+        
+        # Get stylists with error handling
+        try:
+            stylists = get_stylists()
+            stylists_map = {stylist['id']: stylist['name'] for stylist in stylists}
+        except Exception as e:
+            logger.error(f"Error getting stylists: {e}")
+            stylists_map = {}
+        
+        # Process appointments safely
+        for appt in appointments:
+            try:
+                stylist_id = appt.get('stylist_id')
+                appt['stylist_name'] = stylists_map.get(stylist_id, "Unknown")
+            except Exception as e:
+                logger.error(f"Error processing appointment {appt.get('appointment_id', 'unknown')}: {e}")
+                appt['stylist_name'] = "Unknown"
+        
+        return render_template('appointments.html', appointments=appointments)
+    
+    except Exception as e:
+        logger.error(f"Error in appointments route: {e}")
+        import traceback
+        logger.error(traceback.format_exc())
+        flash("An error occurred while retrieving your appointments", "error")
+        return render_template('error.html', error=str(e))
 
 
 @booking_bp.route('/cancel/<string:appointment_id>')
