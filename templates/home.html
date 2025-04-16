@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Elegance Salon - Home</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <header class="main-header">
+        <nav>
+            <div class="logo">Elegance<span>Salon</span></div>
+            <ul class="nav-links">
+                <li><a href="/home" class="active"><i class="fas fa-home"></i> Home</a></li>
+                <li><a href="/booking"><i class="fas fa-calendar-plus"></i> Book Now</a></li>
+                <li><a href="/appointments"><i class="fas fa-calendar-check"></i> My Appointments</a></li>
+                <li><a href="/logout" class="logout-link"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+            </ul>
+            <div class="hamburger-menu">
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+            </div>
+        </nav>
+    </header>
+
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Welcome to Elegance Salon</h1>
+            <p>Where beauty meets professionalism</p>
+            <a href="/booking" class="btn-primary"><i class="fas fa-calendar-plus"></i> Book Appointment</a>
+        </div>
+    </section>
+
+    <section class="services-section">
+        <div class="container">
+            <h2 class="section-title">Our Premium Services</h2>
+            <div class="services-grid">
+                <div class="service-card">
+                    <div class="service-icon"><i class="fas fa-cut"></i></div>
+                    <h3>Haircut & Styling</h3>
+                    <p>Professional cutting and styling services tailored to your unique personality.</p>
+                    <div class="service-price">From $50</div>
+                    <a href="/booking" class="btn-secondary">Book Now</a>
+                </div>
+                
+                <div class="service-card">
+                    <div class="service-icon"><i class="fas fa-palette"></i></div>
+                    <h3>Hair Coloring</h3>
+                    <p>Full color, highlights, balayage, and more to enhance your natural beauty.</p>
+                    <div class="service-price">From $100</div>
+                    <a href="/booking" class="btn-secondary">Book Now</a>
+                </div>
+                
+                <div class="service-card">
+                    <div class="service-icon"><i class="fas fa-spa"></i></div>
+                    <h3>Hair Treatments</h3>
+                    <p>Repair, hydrate, and rejuvenate your hair with our premium treatments.</p>
+                    <div class="service-price">From $80</div>
+                    <a href="/booking" class="btn-secondary">Book Now</a>
+                </div>
+                
+                <div class="service-card">
+                    <div class="service-icon"><i class="fas fa-hand-sparkles"></i></div>
+                    <h3>Manicure & Pedicure</h3>
+                    <p>Complete nail care and artistry to pamper your hands and feet.</p>
+                    <div class="service-price">From $35</div>
+                    <a href="/booking" class="btn-secondary">Book Now</a>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <section class="cta-section">
+        <div class="container">
+            <div class="cta-content">
+                <h2>Ready for a new look?</h2>
+                <p>Our expert stylists are ready to transform your style. Book your appointment today.</p>
+                <a href="/booking" class="btn-accent">Schedule Now</a>
+            </div>
+        </div>
+    </section>
+
+    <footer class="main-footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <h3>Elegance<span>Salon</span></h3>
+                    <p>Where beauty meets professionalism</p>
+                </div>
+                <div class="footer-hours">
+                    <h4>Business Hours</h4>
+                    <p>Monday - Friday: 9am - 7pm</p>
+                    <p>Saturday: 9am - 5pm</p>
+                    <p>Sunday: Closed</p>
+                </div>
+                <div class="footer-contact">
+                    <h4>Contact Us</h4>
+                    <p><i class="fas fa-phone"></i> (555) 123-4567</p>
+                    <p><i class="fas fa-envelope"></i> info@elegancesalon.com</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 Elegance Salon. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+    
+    <script>
+        // Mobile menu toggle
+        document.querySelector('.hamburger-menu').addEventListener('click', function() {
+            document.querySelector('.nav-links').classList.toggle('show');
+        });
+    </script>
+</body>
+</html>

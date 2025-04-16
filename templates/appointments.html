@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Elegance Salon - My Appointments</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <header class="main-header">
+        <nav>
+            <div class="logo">Elegance<span>Salon</span></div>
+            <ul class="nav-links">
+                <li><a href="/home"><i class="fas fa-home"></i> Home</a></li>
+                <li><a href="/booking"><i class="fas fa-calendar-plus"></i> Book Now</a></li>
+                <li><a href="{{ url_for('booking.appointments') }}" class="active"><i class="fas fa-calendar-check"></i> My Appointments</a></li>
+                <li><a href="/logout" class="logout-link"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+            </ul>
+            <div class="hamburger-menu">
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+            </div>
+        </nav>
+    </header>
+
+    <section class="page-header">
+        <div class="container">
+            <h1>My Appointments</h1>
+            <p>Manage your scheduled salon visits</p>
+        </div>
+    </section>
+
+    <section class="appointments-section">
+        <div class="container">
+            {% if error %}
+            <div class="error-message">
+                <i class="fas fa-exclamation-circle"></i>
+                {{ error }}
+            </div>
+            {% endif %}
+            
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="success-message">
+                            <i class="fas fa-check-circle"></i>
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            
+            {% if appointments %}
+                <div class="appointments-list">
+                    <div class="appointment-tabs">
+                        <button class="tab-btn active" data-filter="all">All</button>
+                        <button class="tab-btn" data-filter="scheduled">Upcoming</button>
+                        <button class="tab-btn" data-filter="completed">Completed</button>
+                        <button class="tab-btn" data-filter="cancelled">Cancelled</button>
+                    </div>
+                    <!-- Inside the appointment-card loop -->
+<div class="appointment-card status-{{ appointment.status }}">
+    <div class="appointment-status">
+        <!-- Optional status badge or indicator if you want -->
+    </div>
+    
+    <div class="appointment-details">
+        <div class="appointment-service">
+            <h3>{{ appointment.service }}</h3>
+            <p class="stylist-name">with {{ appointment.stylist_name }}</p>
+        </div>
+        
+        <div class="appointment-time">
+            <div class="date">
+                <i class="fas fa-calendar-alt"></i> 
+                {{ appointment.appointment_date.strftime('%a, %b %d, %Y') }}
+            </div>
+            <div class="time">
+                <i class="fas fa-clock"></i>
+                {{ appointment.appointment_time.strftime('%I:%M %p') }}
+            </div>
+        </div>
+
+        {% if appointment.notes %}
+        <div class="appointment-notes">
+            <p><i class="fas fa-comment-alt"></i> <strong>Notes:</strong> {{ appointment.notes }}</p>
+        </div>
+        {% endif %}
+
+        <!-- ✅ Moved action buttons here -->
+        {% if appointment.status == 'scheduled' %}
+        <div class="appointment-actions"><a href="{{ url_for('booking.cancel_appointment', appointment_id=appointment.id) }}"class="btn-cancel" 
+               onclick="return confirm('Are you sure you want to cancel this appointment?')">
+                <i class="fas fa-times"></i> Cancel Appointment
+            </a>
+            <a href="{{ url_for('booking.reschedule_appointment', appointment_id=appointment.id) }}" class="btn-reschedule">
+                <i class="fas fa-calendar-alt"></i> Reschedule
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% else %}
+                <div class="no-appointments">
+                    <div class="empty-state">
+                        <i class="fas fa-calendar-day"></i>
+                        <h3>No Appointments Yet</h3>
+                        <p>You don't have any appointments scheduled at the moment.</p>
+                        <a href="/booking" class="btn-primary">Book Your First Appointment</a>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </section>
+
+    <footer class="main-footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <h3>Elegance<span>Salon</span></h3>
+                    <p>Where beauty meets professionalism</p>
+                </div>
+                <div class="footer-hours">
+                    <h4>Business Hours</h4>
+                    <p>Monday - Friday: 9am - 7pm</p>
+                    <p>Saturday: 9am - 5pm</p>
+                    <p>Sunday: Closed</p>
+                </div>
+                <div class="footer-contact">
+                    <h4>Contact Us</h4>
+                    <p><i class="fas fa-phone"></i> (555) 123-4567</p>
+                    <p><i class="fas fa-envelope"></i> info@elegancesalon.com</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 Elegance Salon. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+    
+    <script>
+        // Mobile menu toggle
+        document.querySelector('.hamburger-menu').addEventListener('click', function() {
+            document.querySelector('.nav-links').classList.toggle('show');
+        });
+        
+        // Appointment tabs filtering
+        const tabBtns = document.querySelectorAll('.tab-btn');
+        const appointmentCards = document.querySelectorAll('.appointment-card');
+        
+        tabBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                // Remove active class from all buttons
+                tabBtns.forEach(b => b.classList.remove('active'));
+                
+                // Add active class to clicked button
+                btn.classList.add('active');
+                
+                // Get filter value
+                const filter = btn.getAttribute('data-filter');
+                
+                // Filter appointment cards
+                appointmentCards.forEach(card => {
+                    if (filter === 'all') {
+                        card.style.display = 'flex';
+                    } else {
+                        if (card.classList.contains(`status-${filter}`)) {
+                            card.style.display = 'flex';
+                        } else {
+                            card.style.display = 'none';
+                        }
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

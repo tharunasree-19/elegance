@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Elegance Salon - Reschedule Appointment</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <header class="main-header">
+        <nav>
+            <div class="logo">Elegance<span>Salon</span></div>
+            <ul class="nav-links">
+                <li><a href="/home"><i class="fas fa-home"></i> Home</a></li>
+                <li><a href="/booking"><i class="fas fa-calendar-plus"></i> Book Now</a></li>
+                <li><a href="/appointments" class="active"><i class="fas fa-calendar-check"></i> My Appointments</a></li>
+                <li><a href="/logout" class="logout-link"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+            </ul>
+            <div class="hamburger-menu">
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+            </div>
+        </nav>
+    </header>
+
+    <section class="page-header">
+        <div class="container">
+            <h1>Reschedule Appointment</h1>
+            <p>Select a new date and time for your appointment</p>
+        </div>
+    </section>
+
+    <section class="booking-section">
+        <div class="container">
+            <div class="booking-form">
+                {% if error %}
+                <div class="error-message">
+                    <i class="fas fa-exclamation-circle"></i>
+                    {{ error }}
+                </div>
+                {% endif %}
+
+                <div class="appointment-summary">
+                    <h3>Current Appointment Details</h3>
+                    <div class="summary-details">
+                        <p><strong>Service:</strong> {{ appointment.service }}</p>
+                        <p><strong>Stylist:</strong> {{ stylist_name }}</p>
+                        <p><strong>Current Date:</strong> {{ appointment.appointment_date.strftime('%a, %b %d, %Y') }}</p>
+                        <p><strong>Current Time:</strong> {{ appointment.appointment_time.strftime('%I:%M %p') }}</p>
+                    </div>
+                </div>
+
+                <!-- Fixed form action to match Flask route -->
+                <form method="POST" action="/reschedule_appointment/{{ appointment.id }}">
+                    <div class="form-group">
+                        <label for="appointment_date">New Date:</label>
+                        <input type="date" id="appointment_date" name="appointment_date" value="{{ current_date }}" min="{{ min_date }}" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="appointment_time">New Time:</label>
+                        <select id="appointment_time" name="appointment_time" required>
+                            <option value="">Select a time</option>
+                            <option value="09:00" {% if current_time == '09:00' %}selected{% endif %}>9:00 AM</option>
+                            <option value="10:00" {% if current_time == '10:00' %}selected{% endif %}>10:00 AM</option>
+                            <option value="11:00" {% if current_time == '11:00' %}selected{% endif %}>11:00 AM</option>
+                            <option value="12:00" {% if current_time == '12:00' %}selected{% endif %}>12:00 PM</option>
+                            <option value="13:00" {% if current_time == '13:00' %}selected{% endif %}>1:00 PM</option>
+                            <option value="14:00" {% if current_time == '14:00' %}selected{% endif %}>2:00 PM</option>
+                            <option value="15:00" {% if current_time == '15:00' %}selected{% endif %}>3:00 PM</option>
+                            <option value="16:00" {% if current_time == '16:00' %}selected{% endif %}>4:00 PM</option>
+                            <option value="17:00" {% if current_time == '17:00' %}selected{% endif %}>5:00 PM</option>
+                            <option value="18:00" {% if current_time == '18:00' %}selected{% endif %}>6:00 PM</option>
+                        </select>
+                    </div>
+
+                    <div class="action-buttons">
+                        <a href="/appointments" class="btn-cancel">Cancel</a>
+                        <button type="submit" class="btn">Reschedule Appointment</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <footer class="main-footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <h3>Elegance<span>Salon</span></h3>
+                    <p>Where beauty meets professionalism</p>
+                </div>
+                <div class="footer-hours">
+                    <h4>Business Hours</h4>
+                    <p>Monday - Friday: 9am - 7pm</p>
+                    <p>Saturday: 9am - 5pm</p>
+                    <p>Sunday: Closed</p>
+                </div>
+                <div class="footer-contact">
+                    <h4>Contact Us</h4>
+                    <p><i class="fas fa-phone"></i> (555) 123-4567</p>
+                    <p><i class="fas fa-envelope"></i> info@elegancesalon.com</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 Elegance Salon. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+    
+    <script>
+        // Mobile menu toggle
+        document.querySelector('.hamburger-menu').addEventListener('click', function() {
+            document.querySelector('.nav-links').classList.toggle('show');
+        });
+    </script>
+</body>
+</html>
