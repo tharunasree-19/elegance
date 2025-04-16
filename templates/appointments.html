@@ -12,10 +12,10 @@
         <nav>
             <div class="logo">Elegance<span>Salon</span></div>
             <ul class="nav-links">
-                <li><a href="/home"><i class="fas fa-home"></i> Home</a></li>
-                <li><a href="/booking"><i class="fas fa-calendar-plus"></i> Book Now</a></li>
-                <li><a href="{{ url_for('booking.appointments') }}" class="active"><i class="fas fa-calendar-check"></i> My Appointments</a></li>
-                <li><a href="/logout" class="logout-link"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+                <li><a href="{{ url_for('home') }}"><i class="fas fa-home"></i> Home</a></li>
+                <li><a href="{{ url_for('booking_redirect') }}"><i class="fas fa-calendar-plus"></i> Book Now</a></li>
+                <li><a href="{{ url_for('appointments_redirect') }}" class="active"><i class="fas fa-calendar-check"></i> My Appointments</a></li>
+                <li><a href="{{ url_for('auth.logout') }}" class="logout-link"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
             </ul>
             <div class="hamburger-menu">
                 <div class="bar"></div>
@@ -77,11 +77,11 @@
                                 <div class="appointment-time">
                                     <div class="date">
                                         <i class="fas fa-calendar-alt"></i> 
-                                        {{ appt.appointment_date }}
+                                        {{ appt.formatted_date }}
                                     </div>
                                     <div class="time">
                                         <i class="fas fa-clock"></i>
-                                        {{ appt.appointment_time }}
+                                        {{ appt.formatted_time }}
                                     </div>
                                 </div>
 
@@ -114,7 +114,7 @@
                         <i class="fas fa-calendar-day"></i>
                         <h3>No Appointments Yet</h3>
                         <p>You don't have any appointments scheduled at the moment.</p>
-                        <a href="/booking" class="btn-primary">Book Your First Appointment</a>
+                        <a href="{{ url_for('booking_redirect') }}" class="btn-primary">Book Your First Appointment</a>
                     </div>
                 </div>
             {% endif %}
